@@ -2,6 +2,7 @@
 import os
 import argparse
 import logging
+import win32com.client
 
 # Import from modules
 from MyCls import initialise_app, finalise_app, handle_exception
@@ -39,5 +40,16 @@ logger = logging.getLogger("my_logger")
 ##################################################
 # Main
 ##################################################
+app = win32com.client.Dispatch("Outlook.Application")
+my_namespace = app.GetNamespace("MAPI")
+folder = my_namespace.GetDefaultFolder(9).Folders("[Import]") # 9 for Calendar folder
+
+appt_itm = folder.Items.Add(1) # 1 for AppointmentItem object
+appt_itm.Subject = "Test"
+appt_itm.Start = "3/17/2021 12:00:00 AM"
+appt_itm.End = "3/18/2021 12:00:00 AM"
+appt_itm.AllDayEvent = True
+appt_itm.ReminderSet = False
+appt_itm.Save()
 
 finalise_app()
