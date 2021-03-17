@@ -40,6 +40,9 @@ logger = logging.getLogger("my_logger")
 ##################################################
 # Main
 ##################################################
+with open("data/calendar.txt", 'r') as reader:
+    tasks = reader.readlines()
+
 app = win32com.client.Dispatch("Outlook.Application")
 my_namespace = app.GetNamespace("MAPI")
 folder = my_namespace.GetDefaultFolder(9).Folders("[Import]") # 9 for Calendar folder
@@ -47,12 +50,15 @@ folder = my_namespace.GetDefaultFolder(9).Folders("[Import]") # 9 for Calendar f
 for i in range (folder.Items.Count, 0, -1):
     folder.Items(i).Delete()
 
-appt_itm = folder.Items.Add(1) # 1 for AppointmentItem object
-appt_itm.Subject = "Test"
-appt_itm.Start = "3/17/2021 12:00:00 AM"
-appt_itm.End = "3/18/2021 12:00:00 AM"
-appt_itm.AllDayEvent = True
-appt_itm.ReminderSet = False
-appt_itm.Save()
+for task in tasks:
+    task_name, start, end, cat = task.split(';')
+    appt_itm = folder.Items.Add(1) # 1 for AppointmentItem object
+    appt_itm.Subject = task_name
+    appt_itm.Start = start
+    appt_itm.End = end
+    appt_itm.Categories = cat
+    appt_itm.AllDayEvent = True
+    appt_itm.ReminderSet = False
+    appt_itm.Save()
 
 finalise_app()
